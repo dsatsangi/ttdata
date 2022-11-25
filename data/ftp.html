@@ -1,0 +1,99 @@
+<!Doctype html>
+
+<html lang=en class=no-js>
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv=X-UA-Compatible content="IE=edge">
+	<script>
+		// no javascript--File-input 
+		(function (e, t, n) {
+			var r = e.querySelectorAll("html")[0];
+			r.className = r.className.replace(/(^|\s)no-js(\s|$)/, "$1js$2")
+		})(document, window, 0);
+	</script>
+	<link rel="stylesheet" href="static/style.css">
+	<script src="static/jquery.min.js"></script>
+</head>
+
+<body>
+
+	<!-- action bar -->
+	<span class="actionbar">
+		<span></span>
+		<span><b>AVR OTA Uploader</b></span>
+		<span></span>
+	</span>
+
+	<!-- side menu bar -->
+	<div id="mySidenav" class="sidenav">
+		<img src="/static/tn-Logo.jpg" alt="profile_picture">
+		<br>
+		<a href="/home">Home</a>
+		<a href="/wifistation">WiFi Station</a>
+		<a href="/wifisoftap">WiFi SoftAP</a>
+		<a href="/dasconfig">DAS TCP Server</a>
+		<a href="/dbconfig">DB Server</a>
+		<a href="/update">Update ESP</a>
+		<a href="/pgm">AVR OTA</a>
+
+	</div>
+
+	<!-- page content -->
+	<center>
+		<div class="card">
+			<div class="content">
+				<div class="box">
+					<input type="file" name="file-7[]" id="file-7" class="inputfile inputfile_fin"
+						data-multiple-caption="{count} files selected" multiple />
+					<label for="file-7">
+						<span></span>
+						<strong>
+							<svg xmlns="http://www.w3.org/2000/svg" width="20" height="17" viewBox="0 0 20 17">
+								<path
+									d="M10 0l-5.2 4.9h3.3v5.1h3.8v-5.1h3.3l-5.2-4.9zm9.3 11.5l-3.2-2.1h-2l3.4 2.6h-3.5c-.1 0-.2.1-.2.1l-.8 2.3h-6l-.8-2.2c-.1-.1-.1-.2-.2-.2h-3.6l3.4-2.6h-2l-3.2 2.1c-.4.3-.7 1-.6 1.5l.6 3.1c.1.5.7.9 1.2.9h16.3c.6 0 1.1-.4 1.3-.9l.6-3.1c.1-.5-.2-1.2-.7-1.5z" />
+							</svg>
+							Choose a File
+						</strong>
+					</label>
+				</div>
+				<button class="btn draw-upborder" id="up">
+					Upload
+				</button>
+				<button class="btn draw-cancelborder" id="cancel">
+					Cancel
+				</button>
+			</div>
+			<div>
+				<table id="table" class="styled-table">
+					<thead>
+						<tr>
+							<th>
+								<h1>File</h1>
+							</th>
+							<th>
+								<h1>Size</h1>
+							</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td></td>
+							<td></td>
+						</tr>
+					</tbody>
+				</table>
+				<button class="btn draw-upborder" id="flash">
+					Flash Sketch
+				</button>
+				<button class="btn draw-cancelborder" id="delete">
+					Remove File
+				</button>
+			</div>
+		</div>
+</body>
+<script src="static/xml.js"></script>
+<script src="static/tweaks.js"></script>
+
+</html>

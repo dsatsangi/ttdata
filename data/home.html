@@ -1,0 +1,105 @@
+<!Doctype html>
+
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>
+      setInterval(function () {	  
+	  var xhttp = new XMLHttpRequest();
+	  var data = {}
+
+	  xhttp.onreadystatechange = function() {
+              if (this.readyState == 4 && this.status == 200) {
+		  data = JSON.parse(this.responseText);
+		  console.log(data);
+		  document.getElementById('mode').innerHTML = data.mode;
+		  document.getElementById('network').innerHTML = data.network;
+		  document.getElementById('status').innerHTML = data.status;
+		  document.getElementById('address').innerHTML = data.address;
+		  document.getElementById('mac').innerHTML = data.mac;
+		  document.getElementById('dasurl').innerHTML = data.dasurl;
+		  document.getElementById('dasbucket').innerHTML = data.dasbucket;
+		  document.getElementById('dasorg').innerHTML = data.dasorg;
+
+              }
+	  };
+	  xhttp.open('POST', '/status');
+	  xhttp.send();
+      }, 500);
+
+    </script>
+    <link rel="stylesheet" href="/static/style.css">
+
+  </head>
+  <body>
+
+    <!-- action bar -->
+    <span class="actionbar">
+      <span></span>
+      <span><b>Home</b></span>
+      <span></span>
+    </span>
+
+    <!-- side menu bar -->
+    <div id="mySidenav" class="sidenav">
+		<img src="/static/tn-Logo.jpg" alt="profile_picture">
+		<br>
+		<a href="/home">Home</a>
+		<a href="/wifistation">WiFi Station</a>
+		<a href="/wifisoftap">WiFi SoftAP</a>
+		<a href="/dasconfig">DAS TCP Server</a>
+		<a href="/dbconfig">DB Server</a>
+		<a href="/update">Update ESP</a>
+		<a href="/pgm">AVR OTA</a>
+	  </div>
+
+    <!-- page content -->
+    <center>
+
+      <div class="card">
+	<div class="min-box">
+	    <span>WiFi Mode:</span>
+	    <span id='mode'>%MODE%</span>
+	</div>
+
+	<div class="min-box">
+	  <span>WiFi network:</span>
+	  <span id='network'>%NETWORK%</span>
+	</div>
+
+	<div class="min-box">
+	  <span>WiFi status:</span>
+	  <span id='status'>%STATUS%</span>
+	</div>
+
+	<div class="min-box">
+	    <span>WiFi Address:</span>
+	    <span id='address'>%ADDRESS%</span>
+	</div>
+
+	<div class="min-box">
+	  <span>WiFi MAC:</span>
+	  <span id='mac'>%MAC%</span>
+	</div>
+
+	<div class="min-box">
+		<span>DAS Server URL:</span>
+		<span id='dasurl'>%DASURL%</span>
+	  </div>
+
+	  <div class="min-box">
+		<span>DAS Server ORG:</span>
+		<span id='dasorg'>%DASORG%</span>
+	  </div>
+
+	  <div class="min-box">
+		<span>DAS Server Bucket:</span>
+		<span id='dasbucket'>%BUCKET%</span>
+	  </div>
+
+      </div>
+    </center>
+
+  </body>
+</html>

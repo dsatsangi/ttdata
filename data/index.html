@@ -1,0 +1,72 @@
+<!Doctype html>
+
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/style.css">
+
+    <script>
+      function login() {
+	  var xml = new XMLHttpRequest();
+
+	  var data = JSON.stringify({
+	      userid: document.getElementById("userid").value,
+	      pass: document.getElementById("pass").value
+	  });
+
+	  xml.onreadystatechange = function() {
+	      if(this.status === 200 && this.readyState === 4) {
+		  data = JSON.parse(this.responseText)
+		  console.log(data);
+		  if (data.status !== "ok") {
+		      alert("Incorrect login credentials");
+		      return;
+		  }
+		  window.location = "http://"+location.hostname+"/home";
+	      }
+	  };
+
+	  xml.open("POST", "/login");
+	  xml.setRequestHeader("Content-Type", "application/json");
+	  xml.send(data);
+	  console.log(data);
+      }
+
+    </script>
+
+  </head>
+  <body>
+
+    <!-- action bar -->
+    <span class="actionbar">
+      <span></span>
+      <span><b>Login</b></span>
+      <span></span>
+    </span>
+
+    <!-- page content -->
+    <center>
+
+      <div class="login-card">
+	<div class="min-box">
+	  <label for="userid">User ID</label><br>
+	  <input type="text" id="userid" name="userid" required
+		 minlength="4" maxlength="12" size="12"> <br>
+	</div>
+
+	<div class="min-box">
+	  <label for="pass">Password</label><br>
+	  <input type="password" id="pass" name="pass" required
+		 minlength="4" maxlength="12" size="12"> <br>
+	</div>
+
+	<div class="min-box">
+	  <button onclick="login()">Login</button>
+	</div>
+      </div>
+
+    </center>
+
+  </body>
+</html>
