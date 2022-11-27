@@ -11,8 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       BUILD_WRAPPER_OUT_DIR: build_wrapper_output_directory # Directory where build-wrapper output will be placed
-
-        steps:
+    steps:
       - uses: actions/checkout@v3
       - uses: actions/cache@v3
         with:
@@ -24,7 +23,7 @@ jobs:
         with:
           python-version: '3.9'
       - name: Install PlatformIO Core
-        run: pip install --upgrade platformio    
+        run: pip install --upgrade platformio
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
@@ -32,7 +31,7 @@ jobs:
         uses: SonarSource/sonarcloud-github-c-cpp@v1
       - name: Run build-wrapper
         run: |
-          build-wrapper-win-x86-64 --out-dir ${{ env.BUILD_WRAPPER_OUT_DIR }} pio run
+          build-wrapper-linux-x86-64 --out-dir ${{ env.BUILD_WRAPPER_OUT_DIR }} pio run
       - name: Run sonar-scanner
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
