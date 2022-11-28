@@ -16,8 +16,8 @@
 
 using namespace std;
 
-bool debug = true;            // false = wait for  config msg on boot to sate date
-bool Format_on_boot = false;  // Format eeprom on boot, true when changes too config save/load code
+bool debug = true;           // false = wait for  config msg on boot to sate date
+bool Format_on_boot = false; // Format eeprom on boot, true when changes too config save/load code
 /******************************************
          Configuration Defaults
 ******************************************/
@@ -26,7 +26,7 @@ const char *AP_SSID = "DataLink_";
 const char *AP_PASS = "datalink";
 
 String DEFAULT_SSID = AP_SSID;
-String ESPID = String(ESP.getChipId());  // ESP chip id
+String ESPID = String(ESP.getChipId()); // ESP chip id
 
 /* FIXME: login using user and pass */
 #define DEFAULT_LOGIN_USERID "user"
@@ -37,8 +37,7 @@ String ESPID = String(ESP.getChipId());  // ESP chip id
 String tcpDASIP = "192.168.4.2";
 int tcpDASPort = 3000;
 
-/* InfluxDB v2 server url, e.g. https://eu-central-1-1.aws.cloud2.influxdata.com
-(Use: InfluxDB UI -> Load Data -> Client Libraries) */
+// InfluxDB v2 server url, e.g. https://eu-central-1-1.aws.cloud2.influxdata.com (Use: InfluxDB UI -> Load Data -> Client Libraries)
 String INFLUXDB_URL = "https://europe-west1-1.gcp.cloud2.influxdata.com";
 
 // InfluxDB v2 server or cloud API token (Use: InfluxDB UI -> Data -> API Tokens -> Generate API Token)
@@ -69,12 +68,14 @@ String Time = "00:00";
 int flag = 0;
 bool first = true;
 bool db_con = false;
+String pgmstatus;
 
 /******************************************
          end Defaults
 ******************************************/
 
-typedef struct  {
+typedef struct
+{
   WiFiMode_t mode;
   int hidden;
   String network;
@@ -98,7 +99,7 @@ typedef struct  {
          Ch376 related
 ******************************************/
 
-SoftwareSerial testUARD1(4, 5);   // Read on UART1
+SoftwareSerial testUARD1(4, 5); // Read on UART1
 Ch376msc flashDrive(testUARD1);
 
 /******************************************
@@ -107,12 +108,12 @@ Ch376msc flashDrive(testUARD1);
 int timeout = WDTO_8S;
 bool avr_flash = false;
 
-#define AVR_RESET 14   // pin to reset optiboot D5
+#define AVR_RESET 14 // pin to reset optiboot D5
 
-#define ESP_RX 12      // connect to TX pin of AVR MCU D6
-#define ESP_TX 13       // connect to RX pin of AVR MCU D7
+#define ESP_RX 12 // connect to TX pin of AVR MCU D6
+#define ESP_TX 13 // connect to RX pin of AVR MCU D7
 
-SoftwareSerial avrserial(ESP_RX, ESP_TX);   // for AVR MCU
+SoftwareSerial avrserial(ESP_RX, ESP_TX); // for AVR MCU
 /******************************************
          Services related
 ******************************************/
@@ -126,45 +127,57 @@ WiFiClient telnet_client;
 bool is_telnet_client_connected = false;
 bool is_login_success = false;
 
-String Rec_data;  // used to store body contect from requests
+String Rec_data; // used to store body contect from requests
 
-void set_date() {
+void set_date()
+{
 
   Serial.println("Waiting for Setup msg [Json]");
   Serial.println("[Example] \"{\"date\": \"12-12-30\", \"time\": \"23:05\"}");
 
-  if (!debug) {
-        while (Serial.available() == 0) {  }  // wont go any further until Setup msg is Recieved
+  if (!debug)
+  {
+    while (Serial.available() == 0)
+    {
+    } // wont go any further until Setup msg is Recieved
   }
-  if (Serial.available() > 0) {
-  String inString = Serial.readStringUntil('\n');
-  StaticJsonDocument<100> setup_msg;
-  DeserializationError error;
+  if (Serial.available() > 0)
+  {
 
-  error = deserializeJson(setup_msg, inString);
-  if (error)  {
+    String inString = Serial.readStringUntil('\n');
+
+    StaticJsonDocument<100> setup_msg;
+    DeserializationError error;
+
+    error = deserializeJson(setup_msg, inString);
+    if (error)
+    {
       Serial.println("Failed parsing Setup msg");
       wi.date = Date;
       wi.time = Time;
-    } else {
-           wi.date = setup_msg["date"].as<String>();
-            wi.time = setup_msg["time"].as<String>();
-            }
-      Serial.println("[Date] " + wi.date);
-      Serial.println("[Time] " + wi.time);
+    }
+    else
+    {
+      wi.date = setup_msg["date"].as<String>();
+      wi.time = setup_msg["time"].as<String>();
+    }
+    Serial.println("[Date] " + wi.date);
+    Serial.println("[Time] " + wi.time);
   }
 }
 
-void format_eeprom()  {
+void format_eeprom()
+{
   Serial.println("started formating");
   EEPROM.begin(512);
-  for (int i = 0; i < 512; i++) {
+  for (int i = 0; i < 512; i++)
+  {
     EEPROM.write(i, 0xff);
   }
   EEPROM.commit();
   EEPROM.end();
   Serial.println("formating complete");
-  flag = 0;   // clear flag
+  flag = 0; // clear flag
 }
 
 String get_mode_str(WiFiMode_t mode)
@@ -177,11 +190,11 @@ DynamicJsonDocument read_config(String filename)
 {
   DynamicJsonDocument fjson(512);
   DeserializationError error;
-  File jfile = LittleFS.open("/" + filename, "r");  // open wifi setting file
+  File jfile = LittleFS.open("/" + filename, "r"); // open wifi setting file
   if (jfile)
   {
-    error = deserializeJson(fjson, jfile);   // read the config file and conver to json
-    jfile.close();                          // if we load config file its not the first time on this hardware
+    error = deserializeJson(fjson, jfile); // read the config file and conver to json
+    jfile.close();                         // if we load config file its not the first time on this hardware
   }
   else
   {
@@ -236,26 +249,26 @@ void wifi_config(bool read, int mode = 2, String ssid = emptyString, String pass
     error = true;
   }
 
-  if (settings_json["mode"].as<int>() > 0 && settings_json["mode"].as<int>() <= 3)   // heck if config is valid
+  if (settings_json["mode"].as<int>() > 0 && settings_json["mode"].as<int>() <= 3) // heck if config is valid
   {
-    first = false;   // its not the first time we boot on this device
+    first = false; // its not the first time we boot on this device
     error = false;
     Serial.print("settings_json read: ");
     Serial.println(settings_json.as<String>());
   }
 
-  if (read && !error)   // if we reading and no error and not the first time i.e config loaded successfully
+  if (read && !error) // if we reading and no error and not the first time i.e config loaded successfully
   {
     Serial.println("Success : Config Loaded");
 
-    wi.mode = (WiFiMode_t)settings_json["mode"].as<int>();   // we get fields from json
+    wi.mode = (WiFiMode_t)settings_json["mode"].as<int>(); // we get fields from json
     wi.network = settings_json["sta_ssid"].as<String>();
     wi.apname = settings_json["ap_ssid"].as<String>();
     wi.net_pass = settings_json["sta_pass"].as<String>();
     wi.appass = settings_json["ap_pass"].as<String>();
     wi.hidden = settings_json["hidden"].as<int>();
 
-    if (wi.mode == WIFI_STA && wi.network.length() == 0)   // if mode sta and ssid empty it wont connect and gets stuck to avoid that change mode to sta
+    if (wi.mode == WIFI_STA && wi.network.length() == 0) // if mode sta and ssid empty it wont connect and gets stuck to avoid that change mode to sta
     {
       wi.mode = WIFI_AP;
     }
@@ -264,7 +277,7 @@ void wifi_config(bool read, int mode = 2, String ssid = emptyString, String pass
 
     if (wi.mode == WIFI_AP)
     {
-      WiFi.softAP(wi.apname, wi.appass, 1, wi.hidden);   // if it was in AP mode and was set to hidden , it will stay hidden after reboot
+      WiFi.softAP(wi.apname, wi.appass, 1, wi.hidden); // if it was in AP mode and was set to hidden , it will stay hidden after reboot
       Serial.print("[AP] ");
       Serial.println(wi.apname);
       Serial.print("[PSK] ");
@@ -275,7 +288,7 @@ void wifi_config(bool read, int mode = 2, String ssid = emptyString, String pass
       return;
     }
 
-      // Print Local IP Address
+    // Print Local IP Address
     Serial.println("[Wifi Mode] " + get_mode_str(wi.mode));
     Serial.println("[Wifi STA SSID] " + wi.network);
     if (wi.net_pass.length() > 0)
@@ -286,19 +299,19 @@ void wifi_config(bool read, int mode = 2, String ssid = emptyString, String pass
       Serial.println("[Wifi AP SSID] " + wi.apname);
       if (wi.appass.length() > 0)
         Serial.println("[Wifi AP PSK] " + wi.appass);
-      WiFi.softAP(wi.apname, wi.appass, 1, wi.hidden);   // if it was in STA+AP mode and was set to hidden , the AP will stay hidden after reboot
+      WiFi.softAP(wi.apname, wi.appass, 1, wi.hidden); // if it was in STA+AP mode and was set to hidden , the AP will stay hidden after reboot
       Serial.println("[Wifi AP Hidden] " + String(wi.hidden > 0 ? "yes" : "No"));
     }
     WiFi.begin(wi.network, wi.net_pass);
 
     Serial.println("[Wifi IP] " + WiFi.localIP().toString());
-    return;   // connects to network as normal
+    return; // connects to network as normal
   }
 
   if (read && error)
   {
 
-      // we set default
+    // we set default
     wi.mode = WIFI_AP;
     WiFi.mode(wi.mode);
     wi.apname = DEFAULT_SSID;
@@ -315,18 +328,18 @@ void wifi_config(bool read, int mode = 2, String ssid = emptyString, String pass
   }
 
   Serial.println("state read= " + String(read) + " error= " + String(error) + " first= " + String(first));
-  if ((!read && !error) || first)   // if we want to write
+  if ((!read && !error) || first) // if we want to write
   {
 
     if (mode == WIFI_STA)
     {
-      settings_json["sta_ssid"] = ssid;   // we change the values of fields
+      settings_json["sta_ssid"] = ssid; // we change the values of fields
       settings_json["sta_pass"] = pass;
     }
 
     if (mode == WIFI_AP_STA)
     {
-      settings_json["sta_ssid"] = ssid;   // we change the values of fields
+      settings_json["sta_ssid"] = ssid; // we change the values of fields
       settings_json["sta_pass"] = pass;
     }
 
@@ -362,7 +375,7 @@ void wifi_config(bool read, int mode = 2, String ssid = emptyString, String pass
   Serial.println("UNKNWON state read= " + String(read) + " error= " + String(error));
 }
 
-  // bool read : Read or write Wifi Config dependoing on the bool read variable
+// bool read : Read or write Wifi Config dependoing on the bool read variable
 void tcpdata(bool read = true, String dasurl = emptyString, String dastoken = emptyString, String dasorg = emptyString, String dasbucket = emptyString, String dasip = emptyString, String dasport = emptyString)
 {
 
@@ -397,7 +410,7 @@ void tcpdata(bool read = true, String dasurl = emptyString, String dastoken = em
     else
     {
       Serial.println("[TCP] Usig Default");
-        // if file failed to open or does not exist we load defaults
+      // if file failed to open or does not exist we load defaults
       wi.dasip = tcpDASIP;
       wi.dasport = tcpDASPort;
       wi.dasurl = INFLUXDB_URL;
@@ -442,7 +455,7 @@ void tcpdata(bool read = true, String dasurl = emptyString, String dastoken = em
     Serial.print("tcp json write:");
     Serial.println(tcpdata_json.as<String>());
 
-    if (write_config("tcpdata.json", tcpdata_json.as<JsonObject>()))   // write to file
+    if (write_config("tcpdata.json", tcpdata_json.as<JsonObject>())) // write to file
       Serial.println("tcpdata.json written");
   }
 
@@ -471,7 +484,7 @@ void wifi_settings(int mode, String ssid, String pass, int hidden)
     wi.network = ssid;
     wi.net_pass = pass;
     WiFi.mode(wi.mode);
-      // CONNECT
+    // CONNECT
     WiFi.begin(wi.network, wi.net_pass);
     wifi_config(false, 1, wi.network, wi.net_pass);
     break;
@@ -496,7 +509,7 @@ void wifi_settings(int mode, String ssid, String pass, int hidden)
     wi.network = ssid;
     wi.net_pass = pass;
     wi.hidden = hidden;
-      // CONNECT
+    // CONNECT
     WiFi.softAP(wi.apname, wi.appass, 1, wi.hidden, 4);
     WiFi.begin(wi.network, wi.net_pass);
     wifi_config(false, 2, wi.apname, wi.appass, wi.hidden);
@@ -538,13 +551,13 @@ void update_wifi_state()
     wi.status = "connecting...!";
 
   wi.mac = WiFi.macAddress();
-    // Serial.println(wi.address);
+  // Serial.println(wi.address);
 }
 
 void Init_Das()
 {
 
-  db_con = false;   // diable connetion when changing credentials
+  db_con = false; // diable connetion when changing credentials
 
   if (wi.mode == WIFI_AP || wi.mode == WIFI_OFF)
   {
@@ -560,28 +573,28 @@ void Init_Das()
 
   Serial.println("Establishing connection with Database Server");
 
-  client.setConnectionParams(wi.dasurl, wi.dasorg, wi.dasbucket, wi.dastoken, InfluxDbCloud2CACert);   // update influxdb credentials
+  client.setConnectionParams(wi.dasurl, wi.dasorg, wi.dasbucket, wi.dastoken, InfluxDbCloud2CACert); // update influxdb credentials
 
   sensor.clearTags();
 
-    // Add tags
+  // Add tags
   sensor.addTag("device", ESPID);
   sensor.addTag("SSID", wi.network);
 
-    // Accurate time is necessary for certificate validation and writing in batches
-    // For the fastest time sync find NTP servers in your area: https:  //www.pool.ntp.org/zone/
-    // Syncing progress and the time will be printed to Serial.
+  // Accurate time is necessary for certificate validation and writing in batches
+  // For the fastest time sync find NTP servers in your area: https://www.pool.ntp.org/zone/
+  // Syncing progress and the time will be printed to Serial.
   struct tm *timeinfo;
   String timeVar;
   int year;
 
   do
-  {   // make sure the date we get is correct
+  { // make sure the date we get is correct
     timeSync(TZ_INFO, "pool.ntp.org", "time.nis.gov");
     time_t tnow = time(nullptr);
     timeinfo = localtime(&tnow);
-      // timeVar = ctime(&tnow);
-      // year = timeVar.substring(20);
+    // timeVar = ctime(&tnow);
+    // year = timeVar.substring(20);
     year = 1900 + timeinfo->tm_year;
 
     Serial.print("[year] ");
@@ -589,12 +602,12 @@ void Init_Das()
 
   } while (2022 > year);
 
-    // wi.date = timeVar.substring(8, 11) + "-" + timeVar.substring(4, 8) + "-" + year.substring(2);
-    // wi.date.replace(" ", "");
+  // wi.date = timeVar.substring(8, 11) + "-" + timeVar.substring(4, 8) + "-" + year.substring(2);
+  // wi.date.replace(" ", "");
   wi.date = String(timeinfo->tm_mday) + "-" + String(timeinfo->tm_mon + 1) + "-" + String(timeinfo->tm_year).substring(1);
   Serial.println("[Date] " + wi.date);
 
-    // Check server connection
+  // Check server connection
   if (client.validateConnection())
   {
     Serial.print("[Server] [InfluxDB] OK : ");
@@ -608,7 +621,7 @@ void Init_Das()
     db_con = false;
   }
 
-  flag = 0;   // clear the flag
+  flag = 0; // clear the flag
 }
 
 String processor(const String &var)
@@ -623,6 +636,10 @@ String processor(const String &var)
     return wi.address;
   if (var == "MAC")
     return wi.mac;
+  if (var == "DASTCPIP")
+    return wi.dasip;
+  if (var == "DASTCPPORT")
+    return String(wi.dasport);
   if (var == "DASURL")
     return wi.dasurl;
   if (var == "BUCKET")
@@ -647,31 +664,31 @@ bool validate_login_credentials(String userid, String pass)
 void handle_post_request_data(AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total)
 {
 
-    // Serial.println("[URL]" + request->url());
+  // Serial.println("[URL]" + request->url());
 
   if (!index)
   {
-      // Serial.printf("BodyStart: %u B\n", total);
+    // Serial.printf("BodyStart: %u B\n", total);
   }
 
   for (size_t i = 0; i < len; i++)
-  {   // accumelate large data
+  { // accumelate large data
     Rec_data = Rec_data + (char)data[i];
   }
 
   if (index + len == total)
-  {   // when data is complete , process accumelated data
+  { // when data is complete , process accumelated data
 
-      // Serial.printf("BodyEnd: %u B\n", total);
-      // Serial.print("[Data]");
-      // Serial.println(Rec_data);
+    // Serial.printf("BodyEnd: %u B\n", total);
+    // Serial.print("[Data]");
+    // Serial.println(Rec_data);
     StaticJsonDocument<JSON_OBJECT_SIZE(50)> doc;
     JsonObject root = doc.to<JsonObject>();
     DeserializationError err = deserializeJson(doc, Rec_data);
 
     if (err)
     {
-        // Serial.println("Deserialization: Data Corrupted");
+      // Serial.println("Deserialization: Data Corrupted");
       return;
     }
 
@@ -694,7 +711,7 @@ void handle_post_request_data(AsyncWebServerRequest *request, uint8_t *data, siz
       String tcpservertoken = root["token"];
       String tcpserverorg = root["org"];
       String tcpserverbucket = root["bucket"];
-      String tcpserverlocal = root["local"];   //=======TODO
+      String tcpserverlocal = root["local"]; //=======TODO
 
       wi.dasurl = tcpserverurl;
       wi.dastoken = tcpservertoken;
@@ -703,7 +720,7 @@ void handle_post_request_data(AsyncWebServerRequest *request, uint8_t *data, siz
 
       tcpdata(false, wi.dasurl, wi.dastoken, wi.dasorg, wi.dasbucket, emptyString, emptyString);
 
-      flag = 1;   // set flag to reconnect to DB in loop
+      flag = 1; // set flag to reconnect to DB in loop
 
       request->send(200, "application/json", "{\"status\": \"ok\"}");
     }
@@ -738,7 +755,7 @@ void handle_post_request_data(AsyncWebServerRequest *request, uint8_t *data, siz
       request->send(200, "application/json", status);
     }
 
-    Rec_data = "";   // Clear this storage after processing is done
+    Rec_data = ""; // Clear this storage after processing is done
   }
 }
 
@@ -755,13 +772,15 @@ void handle_post_request_update(AsyncWebServerRequest *request)
   object["status"] = wi.status;
   object["address"] = wi.address;
   object["mac"] = wi.mac;
+  object["dasip"] = wi.dasip;
+  object["dasport"] = wi.dasport;
   object["dasurl"] = wi.dasurl;
   object["dasbucket"] = wi.dasbucket;
   object["dasorg"] = wi.dasorg;
 
   serializeJson(doc, data);
 
-    // Serial.println(data);
+  // Serial.println(data);
   request->send(200, "application/json", data.c_str());
 }
 
@@ -802,7 +821,7 @@ void handle_telnet()
 
 void SendDataToServer(String inString)
 {
-  if (wi.mode == WIFI_AP || wi.mode == WIFI_OFF)   // only continue if we are connected to a network
+  if (wi.mode == WIFI_AP || wi.mode == WIFI_OFF) // only continue if we are connected to a network
   {
     Serial.println("[WiFi] No Internet");
     return;
@@ -826,17 +845,17 @@ void SendDataToServer(String inString)
     return;
   }
 
-    // Clear fields for reusing the point. Tags will remain untouched
+  // Clear fields for reusing the point. Tags will remain untouched
   sensor.clearFields();
 
-    // Store Data recived into point
+  // Store Data recived into point
   sensor.addField("data", inString);
 
-    // Print what are we exactly writing
+  // Print what are we exactly writing
   Serial.print("  Writing: ");
   Serial.println(sensor.toLineProtocol());
 
-    // Write point
+  // Write point
 
   if (!client.writePoint(sensor))
   {
@@ -861,20 +880,20 @@ bool store(String sdata)
       flashDrive.moveCursor(CURSOREND);
     }
 
-    if (flashDrive.getFreeSectors())   // check the free space on the drive
+    if (flashDrive.getFreeSectors()) // check the free space on the drive
     {
-        // ch376 testchange
+      // ch376 testchange
       int len = sdata.length() + 1;
       uint8_t buffer[len];
       sdata.getBytes(buffer, sdata.length());
       buffer[sdata.length()] = '\0';
-      flashDrive.writeFile((char *)buffer, len);   // string, string length
+      flashDrive.writeFile((char *)buffer, len); // string, string length
       flashDrive.closeFile();
       Serial.println("[USB] WriteFile: Success");
 
-        // flashDrive.writeFile((char *)sdata.c_str(), sdata.length());   // string, string length
-        // flashDrive.closeFile();
-        // Serial.println("Done");
+      // flashDrive.writeFile((char *)sdata.c_str(), sdata.length()); // string, string length
+      // flashDrive.closeFile();
+      // Serial.println("Done");
     }
     else
     {
@@ -890,60 +909,44 @@ bool store(String sdata)
   return state;
 }
 
-
 void handle_uart_data()
 {
-/*-------------------------------------------------------
-as long as there are bytes in the avrserial queue,
-read them and send them out the socket if it's connected:
----------------------------------------------------------*/
-  //int datlen = avrserial.available() + 1;
-  //Serial.println("Avrserial.available(): " + String(datlen));
+  /*-------------------------------------------------------
+    as long as there are bytes in the avrserial queue,
+    read them and send them out the socket if it's connected:
+    ---------------------------------------------------------*/
+//  Serial.println("Avrserial.available(): " + String(avrserial.available()));
 
-if (avrserial.available() == 0)   // only continue if data exist
-return;
+  if (avrserial.available() == 0) // only continue if data exist
+    return;
 
+  String inString;
 
+  // for (int i = 0; i < datlen; i++)
+  //   inString += avrserial.read();
 
-String inString;
+  while (avrserial.available() > 0)
+  {
+    inString = avrserial.readStringUntil('\n');
+  }
 
+  Serial.println("Avrserial Data recived: " + inString);
 
+  SendDataToServer(inString);
 
-  //for (int i = 0; i < datlen; i++)
-  //inString += avrserial.read();
+  if (telnet_client.connected())
+  {
+    telnet_client.print(inString);
+  }
 
-
-
-while (avrserial.available() > 0)
-{
-inString = avrserial.readStringUntil('\n');
-}
-
-
-
-Serial.println("Avrserial Data recived: " + inString);
-
-
-
-SendDataToServer(inString);
-
-
-
-if (telnet_client.connected())
-{
-telnet_client.print(inString);
-}
-
-
-
-if (!flashDrive.driveReady())
-{   // if no flash drive are attached
-Serial.println("Attach flash drive first!");
-}
-else
-{
-store(inString);
-}
+  if (!flashDrive.driveReady())
+  { // if no flash drive are attached
+    Serial.println("Attach flash drive first!");
+  }
+  else
+  {
+    store(inString);
+  }
 }
 
 String listdir()
@@ -964,10 +967,10 @@ String listdir()
 
 void optiboothandle(AsyncWebServerRequest &request)
 {
-    //   int args = request->args();
-    // for(int i=0;i<args;i++){
-    //   Serial.printf("ARG[%s]: %s\n", request->argName(i).c_str(), request->arg(i).c_str());
-    // }
+  //   int args = request->args();
+  // for(int i=0;i<args;i++){
+  //   Serial.printf("ARG[%s]: %s\n", request->argName(i).c_str(), request->arg(i).c_str());
+  // }
 
   String path = "/hex/";
 
@@ -1030,27 +1033,29 @@ void optiboothandle(AsyncWebServerRequest &request)
         File file = LittleFS.open(path + filename, "r");
         if (file)
         {
-          avr_flash = true;   // put avrserial into flash mode i.e stop checking it for data coming from tndatalink
+          avr_flash = true; // put avrserial into flash mode i.e stop checking it for data coming from tndatalink
 
-            // avrserial initiallized @ boot . avrota and tndatalink both on avrserial
+          // avrserial initiallized @ boot . avrota and tndatalink both on avrserial
           /**
           avrserial.begin(115200);
-          while (!avrserial)   // wait for serial port to connect
+          while (!avrserial) // wait for serial port to connect
           {
             ;
           }
           **/
 
-          UploadProtocol avrdude(&avrserial, AVR_RESET);   // Reset pin for Avr MCU
+          UploadProtocol avrdude(&avrserial, AVR_RESET); // Reset pin for Avr MCU
 
           int ji = 0;
+          int num_page=1;
           avrdude.reset();
 
           ji = avrdude.DeviceSetup();
 
           if (ji == 1)
           {
-            Serial.println("MCU READY FLASHING!!.");
+            pgmstatus = "MCU READY FLASHING!!.";
+            Serial.println(pgmstatus);
 
             HEXparser parse = HEXparser();
             int opti = 0;
@@ -1060,7 +1065,7 @@ void optiboothandle(AsyncWebServerRequest &request)
               uint8_t buffer[55];
               String data = file.readStringUntil('\n');
               data.getBytes(buffer, data.length());
-              parse.ParseRecord(buffer);   // parse one record
+              parse.ParseRecord(buffer); // parse one record
 
               if (parse.CheckReady())
               {
@@ -1069,6 +1074,7 @@ void optiboothandle(AsyncWebServerRequest &request)
                 opti = avrdude.ProgramPage(address, page);
                 if (opti == 0)
                   break;
+                pgmstatus = String(num_page++)+" Pages Flashed";
               }
             }
 
@@ -1078,33 +1084,40 @@ void optiboothandle(AsyncWebServerRequest &request)
 
             if (opti == 1)
             {
-              Serial.println("MCU FLASH complete!!.");
+              pgmstatus = "MCU Flash complete!!.";
+              Serial.println(pgmstatus);
               request.send(200, "text/plain", "MCU FLASHED OK");
             }
             else
             {
-              Serial.println("MCU FLASH Failed!!.");
+              pgmstatus = "MCU Flash Failed!!.";
+              Serial.println(pgmstatus);
               request.send(200, "text/plain", "Error occured during flashing");
             }
           }
           else
           {
-            Serial.println("MCU Setup Failed!!.");
+            pgmstatus = "MCU Setup Failed!!.";
+            Serial.println(pgmstatus);
             request.send(200, "text/plain", "MCU Setup Failed!!.");
           }
-          avr_flash = false;   // diable flash mode of avrserial i.e check if data available.
+          avr_flash = false; // diable flash mode of avrserial i.e check if data available.
         }
         else
         {
+          pgmstatus = "failed to open " + filename;
+          Serial.println(pgmstatus);
           request.send(200, "text/plain", "Failed to open file");
-          Serial.println("failed to open " + filename);
         }
       }
       else
       {
+        pgmstatus = "Please Select a file";
+        Serial.println(pgmstatus);
         request.send(200, "text/plain", "Please Select a file");
-        Serial.println("Please Select a file");
       }
+//      pgmstatus = "Flasher Idle";
+      Serial.println(pgmstatus);
     }
     else
     {
@@ -1118,19 +1131,19 @@ void optiboot_data(AsyncWebServerRequest *request, String filename, size_t index
   if (!index)
   {
     Serial.println((String) "UploadStart: " + filename);
-      // open the file on first call and store the file handle in the request object
+    // open the file on first call and store the file handle in the request object
     String path = "/hex/" + filename;
     request->_tempFile = LittleFS.open(path, "w+");
   }
   if (len)
   {
-      // stream the incoming chunk to the opened file
+    // stream the incoming chunk to the opened file
     request->_tempFile.write(data, len);
   }
   if (final)
   {
     Serial.println((String) "UploadEnd: " + filename + "," + index + len);
-      // close the file handle as the upload is now done
+    // close the file handle as the upload is now done
     request->_tempFile.close();
     request->send(200, "text/plain", "File Uploaded !");
   }
@@ -1138,27 +1151,26 @@ void optiboot_data(AsyncWebServerRequest *request, String filename, size_t index
 
 void setup()
 {
-    // String wifiMacString = WiFi.macAddress();
+  // String wifiMacString = WiFi.macAddress();
 
-  digitalWrite(AVR_RESET, HIGH);      //Keeps PIN14 AVR_RESET Pin default HIGH
+  DEFAULT_SSID.concat(ESPID); // set default AP name with
 
-  DEFAULT_SSID.concat(ESPID);   // set default AP name with
-
-  Serial.begin(9600);   // debug serial
+  Serial.begin(9600); // debug serial
 
   pinMode(AVR_RESET, OUTPUT);
+  digitalWrite(AVR_RESET,HIGH);
   ESP.wdtEnable(timeout);
 
   Serial.println("[device ID] " + ESPID);
 
-    // Serial.println("[FS]" + (String)((size_t)&_FS_end - (size_t)&_FS_start));
-    // Serial.println("[flash free]" + (String)((ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000));
+  // Serial.println("[FS]" + (String)((size_t)&_FS_end - (size_t)&_FS_start));
+  // Serial.println("[flash free]" + (String)((ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000));
 
-  set_date();              // Set date and time using Setup msg recieved on Serial
-  testUARD1.begin(9600);   // ch376 serial 9600 default
-  flashDrive.init();       // ch376 object initialize
+  set_date();            // Set date and time using Setup msg recieved on Serial
+  testUARD1.begin(9600); // ch376 serial 9600 default
+  flashDrive.init();     // ch376 object initialize
 
-  avrserial.begin(9600);   // initialize avrserial for tndatalink and can be used later for avrota
+  avrserial.begin(9600); // initialize avrserial for tndatalink and can be used later for avrota
 
   if (Format_on_boot)
     format_eeprom();
@@ -1171,8 +1183,8 @@ void setup()
   }
 
   WiFi.persistent(false);
-  wifi_config(true);   // load wifi config file and setup
-  tcpdata(true);       // load tcp and db config file and setup
+  wifi_config(true); // load wifi config file and setup
+  tcpdata(true);     // load tcp and db config file and setup
 
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request)
             { request->send(LittleFS, "/index.html", String(), false, processor); });
@@ -1189,7 +1201,7 @@ void setup()
   server.on("/format", HTTP_GET, [](AsyncWebServerRequest *request)
             {
     if (is_login_success) {
-      flag=2;   //set flag to format eeprom
+      flag=2; //set flag to format eeprom
       Serial.println("formating eeprom");
       request->send(LittleFS, "/home.html", "text/html", false, processor);
     }
@@ -1262,23 +1274,26 @@ void setup()
     optiboothandle(*request);
   } });
 
+  server.on("/pgmstatus", HTTP_GET, [](AsyncWebServerRequest *request)
+            { request->send(200, "text/html", pgmstatus); });
+
   server.on(
       "/update", HTTP_POST, [](AsyncWebServerRequest *request)
       {
     if (!is_login_success) {
       request->redirect("/");
     }
-      // the request handler is triggered after the upload has finished...
-      // create the response, add header, and send response
+    // the request handler is triggered after the upload has finished...
+    // create the response, add header, and send response
     AsyncWebServerResponse *response = request->beginResponse((Update.hasError()) ? 500 : 200, "text/plain", (Update.hasError()) ? "FAIL" : "OK");
     response->addHeader("Connection", "close");
     response->addHeader("Access-Control-Allow-Origin", "*");
     request->send(response);
-      // yield();
+    // yield();
     ESP.restart(); },
       [](AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final)
       {
-          // Upload handler chunks in data
+        // Upload handler chunks in data
         if (!is_login_success)
         {
           request->redirect("/");
@@ -1286,20 +1301,20 @@ void setup()
 
         if (!index)
         {
-          Serial.println("update started file: " + filename);
+          Serial.println("udate started file: " + filename);
 
           int cmd = (filename == "littlefs.bin") ? U_FS : U_FLASH;
           Update.runAsync(true);
           size_t fsSize = ((size_t)&_FS_end - (size_t)&_FS_start);
           uint32_t maxSketchSpace = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
           if (!Update.begin((cmd == U_FS) ? fsSize : maxSketchSpace, cmd))
-          {   // Start with max available size
+          { // Start with max available size
             Update.printError(Serial);
             return request->send(400, "text/plain", "OTA could not begin " + String(Update.getError()));
           }
         }
 
-          // Write chunked data to the free sketch space
+        // Write chunked data to the free sketch space
         if (len)
         {
           if (Update.write(data, len) != len)
@@ -1309,10 +1324,10 @@ void setup()
         }
 
         if (final)
-        {   // if the final flag is set then this is the last frame of data
-          Serial.println("update end. Flashing Now then Restarting");
+        { // if the final flag is set then this is the last frame of data
+          Serial.println("udate end. Flashing Now then Restarting");
           if (!Update.end(true))
-          {   // true to set the size to the current progress
+          { // true to set the size to the current progress
             Update.printError(Serial);
             return request->send(400, "text/plain", "Could not end OTA " + String(Update.getError()));
           }
@@ -1341,13 +1356,13 @@ void setup()
 
   Serial.println("[Server] [Telnet] OK");
 
-  Init_Das();   // Setup influx DB connection
+  Init_Das(); // Setup influx DB connection
 }
 
 void loop()
 {
   if (flashDrive.checkIntMessage())
-  {   // check USB device
+  { // check USB device
     if (flashDrive.getDeviceStatus())
     {
       Serial.println(F("Flash drive attached!"));
@@ -1358,13 +1373,13 @@ void loop()
     }
   }
 
-    //  handle_telnet();
+  //  handle_telnet();
   if (!avr_flash)
     handle_uart_data();
 
   if (flag == 1)
-    Init_Das();   // if flag set reconnect DB
+    Init_Das(); // if flag set reconnect DB
 
   if (flag == 2)
-    format_eeprom();   // if flag set reconnect DB
+    format_eeprom(); // if flag set reconnect DB
 }

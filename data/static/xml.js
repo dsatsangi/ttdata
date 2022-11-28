@@ -93,17 +93,30 @@ function deleteFile(filename) {
 }
 
 function flashFile(filename) {
+    document.getElementById('status').innerHTML = "Flashing in progress.";
     var xhr = new XMLHttpRequest();
     var url = espUrl + "/pgm?cmd=flash&filename=" + filename; xhr.open("GET", url, true);
     xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
     xhr.onreadystatechange = function () {
-        if (xhr.readyState == 4 && xhr.status == 200) {
-            alert(xhr.responseText);
-        }
+    if (xhr.readyState == 4 && xhr.status == 200) {
+    alert(xhr.responseText);
+    }
     }
     xhr.send();
-}
 
+    var statusfunc = setInterval(function () {
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function () {
+    if (this.readyState == 4 && this.status == 200) {
+    data = this.responseText;
+    document.getElementById('status').innerHTML = data;
+    clearInterval(statusfunc);
+    }
+    };
+    xhttp.open('GET', '/pgmstatus');
+    xhttp.send();
+    }, 2000);
+    }
 
 /*   Highlight selected row containing file to be staged  */
 $('table#table.styled-table').on('click', 'tr', function (event) {
