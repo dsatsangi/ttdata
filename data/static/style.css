@@ -238,11 +238,11 @@
 .styled-table tbody td:first-child {
   color: #fb667a
 }
-
+/*
 .styled-table tbody td:second-child {
   color: #d1b8bb
 }
-
+*/
 .styled-table tbody tr {
   border-bottom: 1px solid #ddd;
   text-align: center
