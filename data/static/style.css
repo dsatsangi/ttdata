@@ -290,7 +290,8 @@ button {
   font-size: 16px;
   margin: 10px 5px;
   padding: 15px 30px;
-  text-align: center
+  text-align: center;
+  text-transform: none
 }
 
 button:active {
@@ -301,7 +302,9 @@ button:active {
 h1 {
   color: #fff;
   font: 300 3em/1em sans-serif;
-  text-align: center
+  text-align: center;
+  font-size: 2em;
+  margin: .67em 0
 }
 
 h2 {
@@ -384,10 +387,6 @@ body {
   margin: 0
 }
 
-button {
-  text-transform: none
-}
-
 button,
 html input[type=button],
 input[type=reset],
@@ -415,10 +414,6 @@ html input[disabled] {
   cursor: default
 }
 
-h1 {
-  font-size: 2em;
-  margin: .67em 0
-}
 
 html {
   -ms-text-size-adjust: 100%;

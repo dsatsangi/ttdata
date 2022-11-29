@@ -1301,7 +1301,7 @@ void setup()
 
         if (!index)
         {
-          Serial.println("udate started file: " + filename);
+          Serial.println("update started file: " + filename);
 
           int cmd = (filename == "littlefs.bin") ? U_FS : U_FLASH;
           Update.runAsync(true);
@@ -1325,7 +1325,7 @@ void setup()
 
         if (final)
         { // if the final flag is set then this is the last frame of data
-          Serial.println("udate end. Flashing Now then Restarting");
+          Serial.println("update end. Flashing Now then Restarting");
           if (!Update.end(true))
           { // true to set the size to the current progress
             Update.printError(Serial);
