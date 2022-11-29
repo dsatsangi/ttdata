@@ -47,31 +47,30 @@
 	</div>
 
     <!-- page content -->
-    <center>
+
       <div class="card">
 
-        <div class="min-box">
-          <span>Device ID:</span>
-          <span id='mode'>%ESPID%</span>
-      </div>
+            <div class="min-box">
+              <span>Device ID:</span>
+              <span id='mode'>%ESPID%</span>
+            </div>
 
-        <div class="min-box">
-          <form method='POST' action='' enctype='multipart/form-data'>
-            <h3>Firmware:</h3><br>
-            <input type='file' accept='.bin,.bin.gz' name='firmware'>
-            <input type='submit' value='Update Firmware'>
-        </form>
-        </div>
+            <div class="min-box">
+              <form method='POST' action='' enctype='multipart/form-data'>
+                <h3>Firmware:</h3><br>
+                <input type='file' accept='.bin,.bin.gz' name='firmware'>
+                <input type='submit' value='Update Firmware'>
+            </form>
+            </div>
 
-        <div class="min-box">
-          <form method='POST' action='' enctype='multipart/form-data'>
-            <h3>FileSystem:</h3><br>
-            <input type='file' accept='.bin,.bin.gz' name='filesystem'>
-            <input type='submit' value='Update FileSystem'>
-        </form>
-        </div>
+            <div class="min-box">
+              <form method='POST' action='' enctype='multipart/form-data'>
+                <h3>FileSystem:</h3><br>
+                <input type='file' accept='.bin,.bin.gz' name='filesystem'>
+                <input type='submit' value='Update FileSystem'>
+            </form>
+            </div>
       </div>
-    </center>
 
   </body>
 </html>

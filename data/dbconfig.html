@@ -56,65 +56,63 @@
 	</div>
 
     <!-- page content -->
-    <center>
 		
       <div class="card">
 
-	<div class="min-box">
-		<input type="checkbox" id="local" name="local" value="true">
-		<div class="tooltip">
-		<label for="local">Local Server</label> 
-		<span class="tooltiptext">Local  or Cloud. (not implemented yet)</span>
-		<br>
-		</div>
-	</div>
+			<div class="min-box">
+				<input type="checkbox" id="local" name="local" value="true">
+				<div class="tooltip">
+				<label for="local">Local Server</label> 
+				<span class="tooltiptext">Local  or Cloud. (not implemented yet)</span>
+				<br>
+				</div>
+			</div>
 
-	<div class="min-box">
-		<div class="tooltip">
-			<label for="url">DB URL</label>
-			<span class="tooltiptext">URL of DB Server e.g"https://eu-central-1-1.aws.cloud2.influxdata.com".</span>
-		  </div>
-		  <br>
-	  <input type="text" id="url" name="url" required
-		 minlength="7" maxlength="500" size="12"> <br>
-	</div>
+			<div class="min-box">
+				<div class="tooltip">
+					<label for="url">DB URL</label>
+					<span class="tooltiptext">URL of DB Server e.g"https://eu-central-1-1.aws.cloud2.influxdata.com".</span>
+				</div>
+				<br>
+			<input type="text" id="url" name="url" required
+				minlength="7" maxlength="500" size="12"> <br>
+			</div>
 
-	<div class="min-box">
-		<div class="tooltip">
-			<label for="token">DB Token</label>
-			<span class="tooltiptext">Token of DB server.</span>
-		  </div>
-		  <br>
-	  <input type="text" id="token" name="token" required
-		 minlength="10" maxlength="500" size="12"> <br>
-	</div>
-	<div class="min-box">
-		<div class="tooltip">
-			<label for="org">DB ORG</label>
-			<span class="tooltiptext">Email used to register InfluxDB account.</span>
-		  </div>
-		  <br>
-		<input type="text" id="org" name="org" required
-		   minlength="5" maxlength="500" size="12"> <br>
-	  </div>
+			<div class="min-box">
+				<div class="tooltip">
+					<label for="token">DB Token</label>
+					<span class="tooltiptext">Token of DB server.</span>
+				</div>
+				<br>
+			<input type="text" id="token" name="token" required
+				minlength="10" maxlength="500" size="12"> <br>
+			</div>
 
-	  <div class="min-box">
-		<div class="tooltip">
-			<label for="bucket">DB Bucket</label>
-			<span class="tooltiptext">Bucket (DB table) in which data is to be stored.</span>
-		  </div>
-		  <br>
-		<input type="text" id="bucket" name="bucket" required
-		   minlength="0" maxlength="500" size="12"> <br>
-	  </div>
+			<div class="min-box">
+				<div class="tooltip">
+					<label for="org">DB ORG</label>
+					<span class="tooltiptext">Email used to register InfluxDB account.</span>
+				</div>
+				<br>
+				<input type="text" id="org" name="org" required
+				minlength="5" maxlength="500" size="12"> <br>
+			</div>
 
-	<div class="min-box">
-	  <button onclick="onsave()">Save</button>
-	</div>
+			<div class="min-box">
+				<div class="tooltip">
+					<label for="bucket">DB Bucket</label>
+					<span class="tooltiptext">Bucket (DB table) in which data is to be stored.</span>
+				</div>
+				<br>
+				<input type="text" id="bucket" name="bucket" required
+				minlength="0" maxlength="500" size="12"> <br>
+			</div>
+
+			<div class="min-box">
+			<button onclick="onsave()">Save</button>
+			</div>
 
       </div>
-
-    </center>
 
   </body>
 </html>
