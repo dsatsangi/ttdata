@@ -9,7 +9,7 @@
   background-color: #59b179;
   color: #ffffff;
   display: flex;
-  font: 28px Ubuntu;
+  font: 28px sans-serif;
   justify-content: space-between;
   padding: 1%
 }
@@ -208,7 +208,7 @@
   border-bottom: 1px solid #ffffff;
   color: #ffffff;
   display: block;
-  font: bold 14px Ubuntu;
+  font: bold 14px sans-serif;
   padding: 16px 0;
   text-decoration: none
 }
@@ -300,7 +300,7 @@ button:active {
 
 h1 {
   color: #fff;
-  font: 300 3em/1em Ubuntu;
+  font: 300 3em/1em sans-serif;
   text-align: center
 }
 
